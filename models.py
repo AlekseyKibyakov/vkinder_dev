@@ -12,9 +12,11 @@ class User(Base):
 
     id = sq.Column(sq.Integer, primary_key=True)
     vk_id = sq.Column(sq.Integer, unique=True)
-    first_name = sq.Column(sq.String(length=50))
-    last_name = sq.Column(sq.String(length=50))
-    age = sq.Column(100 > sq.Integer > 0, unique=True)
+    first_name = sq.Column(sq.VARCHAR(1500))
+    last_name = sq.Column(sq.VARCHAR(50))
+    age = sq.Column(sq.SmallInteger, unique=True)
+    sex = sq.Column(sq.SmallInteger, unique=True)
+    city = sq.Column(sq.VARCHAR(25), unique=True)
 
     candidates = relationship('Candidate', backref='candidate')
 
@@ -27,10 +29,10 @@ class Candidate(Base):
 
     id = sq.Column(sq.Integer, primary_key=True)
     vk_id = sq.Column(sq.Integer, unique=True)
-    first_name = sq.Column(sq.String(length=50))
-    last_name = sq.Column(sq.String(length=50))
-    age = sq.Column(100 > sq.Integer > 0, unique=True)
-    vk_link = sq.Column(sq.String, unique=True)
+    first_name = sq.Column(sq.VARCHAR(1500))
+    last_name = sq.Column(sq.VARCHAR(50))
+    age = sq.Column(sq.SmallInteger, unique=True)
+    vk_link = sq.Column(sq.VARCHAR(200), unique=True)
     is_favourite = sq.Column(sq.Boolean)
 
     photos = relationship('Photo', backref='photo')

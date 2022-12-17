@@ -1,6 +1,6 @@
-import asyncio
-from vkbottle import API
+from bot_vkbottle import bot
 from models import create_tables, User, Candidate, Photo
 
+
 if __name__ == "__main__":
-    pass
+    bot.run_forever()
