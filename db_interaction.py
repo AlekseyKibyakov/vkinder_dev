@@ -1,10 +1,11 @@
+import sqlalchemy as sq
 from models import create_tables, User, Candidate, Photo
 from sqlalchemy.orm import sessionmaker
-import sqlalchemy as sq
 
-db_log_in = {'login': 'postgres', 'password': '1'}
+from config import DB_LOGIN
 
-DSN = f'postgresql://{db_log_in["login"]}:{db_log_in["password"]}@localhost:5432/vkinder_db'
+
+DSN = f'postgresql://{DB_LOGIN["login"]}:{DB_LOGIN["password"]}@{DB_LOGIN["host"]}:{DB_LOGIN["port"]}/{DB_LOGIN["database"]}'
 
 engine = sq.create_engine(DSN)
 create_tables(engine)
@@ -19,11 +20,12 @@ def add_person_to_db(person):
         if user.vk_id == person.vk_id or candidate.vk_id == person.vk_id:
             session.close()
             return
+
     session.add(person)
     session.commit()
     session.close()
 
-def add_photos_to_db(photos):
+def add_photos_to_db(photo):
     '''Add photos to database. 
     Can be called after adding each candidate'''
     for p in photos:
@@ -44,7 +46,3 @@ def show_favourite_list():
         fav_list.append([c, photo_list])
     session.close()
     return fav_list
-
-
-
-

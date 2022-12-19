@@ -1,6 +1,9 @@
 from bot_vkbottle import bot
-from models import create_tables, User, Candidate, Photo
+
+
+def main():
+    bot.run_forever()
 
 
 if __name__ == "__main__":
-    bot.run_forever()
+    main()

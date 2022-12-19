@@ -1,10 +1,12 @@
 import sqlalchemy as sq
 from sqlalchemy.orm import relationship, declarative_base
 
+
 Base = declarative_base()
 
 def create_tables(engine):
     Base.metadata.create_all(engine)
+
 
 class User(Base):
     __tablename__ = 'user'
@@ -13,13 +15,14 @@ class User(Base):
     vk_id = sq.Column(sq.Integer, unique=True)
     first_name = sq.Column(sq.VARCHAR(1500))
     last_name = sq.Column(sq.VARCHAR(50))
-    age = sq.Column(sq.SmallInteger, unique=True)
-    sex = sq.Column(sq.SmallInteger, unique=True)
-    city = sq.Column(sq.VARCHAR(25), unique=True)
+    age = sq.Column(sq.SmallInteger)
+    sex_id = sq.Column(sq.SmallInteger)
+    city_id = sq.Column(sq.VARCHAR(25))
 
     def __str__(self):
         return [self.id, self.vk_id, 
                 self.first_name, self.last_name]
+
 
 class Candidate(Base):
     __tablename__ = 'candidate'
@@ -28,8 +31,7 @@ class Candidate(Base):
     vk_id = sq.Column(sq.Integer, unique=True)
     first_name = sq.Column(sq.VARCHAR(1500))
     last_name = sq.Column(sq.VARCHAR(50))
-    age = sq.Column(sq.SmallInteger, unique=True)
-    vk_link = sq.Column(sq.VARCHAR(200), unique=True)
+    vk_link = sq.Column(sq.VARCHAR(200))
     is_favourite = sq.Column(sq.Boolean)
 
     user_id = sq.Column(sq.Integer, sq.ForeignKey("user.id"), nullable=False)
@@ -39,6 +41,7 @@ class Candidate(Base):
     def __str__(self):
         return [self.id, self.vk_id, self.first_name, 
                 self.last_name, self.age]
+
 
 class Photo(Base):
     __tablename__ = 'photo'
