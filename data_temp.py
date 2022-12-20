@@ -105,6 +105,8 @@ for p in photos.values():
     db.add_photos_to_db(p)
 
 # получаем список избранных, можно вытягивать из них любые аттрибуты (фотки и т.д.)
+db.change_is_favourite(3333333)
+
 favourites = db.show_favourite_list()
 
 pprint(favourites)
@@ -114,3 +116,5 @@ print(db.get_from_db(1446622, User).sex_id)
 print(db.get_from_db(1446622, User).city_id)
 
 print(db.get_from_db(2222222, Candidate).vk_link)
+
+db.close_session()

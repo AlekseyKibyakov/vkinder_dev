@@ -65,6 +65,11 @@ def get_from_db(vk_id, model):
     model is User or Candidate'''
     return session.query(model).filter(model.vk_id == vk_id).first()
 
+def change_is_favourite(vk_id):
+    session.query(Candidate).filter(Candidate.vk_id == vk_id).update({Candidate.is_favourite: True})
+
+def close_session():
+    session.close()
 
         
 
