@@ -40,7 +40,7 @@ class Candidate(Base):
 
     def __str__(self):
         return [self.id, self.vk_id, self.first_name, 
-                self.last_name, self.age]
+                self.last_name]
 
 
 class Photo(Base):
