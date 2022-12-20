@@ -12,26 +12,40 @@ create_tables(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+def _check_is_in_db(item):
+    if isinstance(item, User):
+        for user in session.query(User).all():
+            if user.vk_id == item.vk_id:
+                return True
+    elif isinstance(item, Candidate): 
+        for candidate in session.query(Candidate).all():
+            if candidate.vk_id == item.vk_id:
+                return True
+    elif isinstance(item, Photo): 
+        for photo in session.query(Photo).all():
+            if photo.vk_link == item.vk_link:
+                return True
+    return False
+
 def add_person_to_db(person):
     '''Add person to database 
     (no matter user or candidate)'''
-    for user, candidate in session.query(User).all(), session.query(Candidate).all():
-        #If person is in db already - add nothing
-        if user.vk_id == person.vk_id or candidate.vk_id == person.vk_id:
-            session.close()
-            return
-
-    session.add(person)
-    session.commit()
-    session.close()
+    if _check_is_in_db(person):
+        session.close()
+        return
+    else:
+        session.add(person)
+        session.commit()
+        
 
 def add_photos_to_db(photo):
     '''Add photos to database. 
     Can be called after adding each candidate'''
-    for p in photos:
-        session.add(p)
+    for p in photo:
+        if _check_is_in_db(p):
+            return
+    session.add(p)
     session.commit()
-    session.close()
 
 def show_favourite_list():
     '''Receiving list of favourite candidates 
@@ -44,5 +58,15 @@ def show_favourite_list():
             filter(Photo.candidate_id == c.id):
             photo_list.append(p)
         fav_list.append([c, photo_list])
-    session.close()
     return fav_list
+
+def get_from_db(vk_id, model):
+    '''Get object from database. 
+    model is User or Candidate'''
+    return session.query(model).filter(model.vk_id == vk_id).first()
+
+
+        
+
+
+
