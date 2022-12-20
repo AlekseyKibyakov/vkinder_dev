@@ -7,15 +7,14 @@ user1 = User(
     first_name = 'John',
     last_name = 'Smith',
     age = 20,
-    sex = 2,
-    city = 5    
+    sex_id = 2,
+    city_id = 5    
 )
 
 candidate1 = Candidate(
     vk_id = 2222222,
     first_name = 'Kate',
     last_name = 'Kate',
-    age = 21,
     vk_link = 'vk.com/kate',
     is_favourite = True,
     user_id = 1
@@ -25,7 +24,6 @@ candidate2 = Candidate(
     vk_id = 3333333,
     first_name = 'Mary',
     last_name = 'Mary',
-    age = 19,
     vk_link = 'vk.com/mary',
     is_favourite = False,
     user_id = 1
@@ -35,7 +33,6 @@ candidate3 = Candidate(
     vk_id = 4444444,
     first_name = 'Jane',
     last_name = 'Jane',
-    age = 20,
     vk_link = 'vk.com/jane',
     is_favourite = True,
     user_id = 1
@@ -110,4 +107,10 @@ for p in photos.values():
 # получаем список избранных, можно вытягивать из них любые аттрибуты (фотки и т.д.)
 favourites = db.show_favourite_list()
 
+pprint(favourites)
 
+print(db.get_from_db(1446622, User).age)
+print(db.get_from_db(1446622, User).sex_id)
+print(db.get_from_db(1446622, User).city_id)
+
+print(db.get_from_db(2222222, Candidate).vk_link)
