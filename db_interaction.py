@@ -38,7 +38,7 @@ def add_person_to_db(person):
         session.commit()
         
 
-def add_photos_to_db(photo):
+def add_photos_to_db(photo: Photo):
     '''Add photos to database. 
     Can be called after adding each candidate'''
     for p in photo:
@@ -60,12 +60,12 @@ def show_favourite_list():
         fav_list.append([c, photo_list])
     return fav_list
 
-def get_from_db(vk_id, model):
+def get_from_db(vk_id:int, model):
     '''Get object from database. 
     model is User or Candidate'''
     return session.query(model).filter(model.vk_id == vk_id).first()
 
-def change_is_favourite(vk_id):
+def change_is_favourite(vk_id:int):
     session.query(Candidate).filter(Candidate.vk_id == vk_id).update({Candidate.is_favourite: True})
 
 def close_session():

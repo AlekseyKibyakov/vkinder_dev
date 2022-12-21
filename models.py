@@ -21,7 +21,8 @@ class User(Base):
 
     def __str__(self):
         return [self.id, self.vk_id, 
-                self.first_name, self.last_name]
+                self.first_name, self.last_name,
+                self.age, self.sex_id, self.city_id]
 
 
 class Candidate(Base):

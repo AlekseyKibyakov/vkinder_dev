@@ -1,4 +1,4 @@
-from bot_vkbottle import bot
+from bot import bot
 
 
 def main():

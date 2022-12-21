@@ -18,6 +18,8 @@ ctx_storage = CtxStorage()
 ctx_storage.set("candidate_number", 0)
 ctx_storage.set("user_id", None)
 ctx_storage.set("candidates", None)
+ctx_storage.set("current_candidate", None)
+
 
 async def _candidates_search(age: int, sex_id: int, city_id: str) -> List:
     sex_id = 1 if sex_id == 2 else 2
@@ -37,13 +39,17 @@ async def _show_candidate(candidates: List, user_id: int, candidate_number: int,
     return candidate
 
 
-async def _show_photo(candidate_id: int) -> str:
+async def _show_photo(candidate_id: int):
     photos = await user_api.photos.get(owner_id=candidate_id,
         album_id="profile",
         extended=True,
         photo_sizes=True)
     return photos.items
 
+
+def find_all_by_key(iterable, key, value):
+    return [(index, dict_) for index, dict_ in enumerate(iterable)
+            if key in dict_ and dict_[key] == value]
 
 async def _get_attachment(top3_photos_list: List[str]) -> List:
     attachment = []
@@ -58,6 +64,12 @@ async def _get_attachment(top3_photos_list: List[str]) -> List:
         attachment.append(upload_photo)
         remove(file_name)
     return attachment
+
+
+async def _get_top3_photo_url(photos: List) -> List[str]:
+        top3_photo = sorted(photos, key=lambda photo: photo.likes.count)[-1:-4:-1]
+        photo_sizes = [photo.sizes for photo in top3_photo]
+        return [obj.url for element in photo_sizes for obj in element if obj.type == obj.type.X]
 
 
 @bot.on.message(payload={"command": "start"})
@@ -107,13 +119,20 @@ async def show_candidate_handler(message: Message):
         Keyboard(one_time=True, inline=False)
         .add(Text("Покажи", {"command": "/show_candidate"}),
          color=KeyboardButtonColor.POSITIVE)
+        .add(Text("Добавить в избранные", {"command": "/favourite_add"}),
+         color=KeyboardButtonColor.SECONDARY)
+        .add(Text("Список избранных", {"command": "/favourite_list"}),
+         color=KeyboardButtonColor.PRIMARY)
         .add(Text("Выход", {"command": "/exit"}),
          color=KeyboardButtonColor.NEGATIVE)
     ).get_json()
 
     #TODO: (?) тут вызвать функцию получния из бд данных юзера, которая возвращает объект user класса User
     #это времяночка:
-    user = ctx_storage.get("user")
+    # user = ctx_storage.get("user")
+    user = db_interaction.get_from_db(message.from_id, User)
+    print(type(user))
+
     candidate_number = ctx_storage.get("candidate_number")
     if ctx_storage.get("candidates") is None:
         candidates = await _candidates_search(age=user.age,
@@ -125,29 +144,34 @@ async def show_candidate_handler(message: Message):
     if candidate_number >= len(candidates.items):
         await message.answer("Просмотрены все кандидаты на данный момент")
 
-    candidate = await _show_candidate(candidates, 1, candidate_number) #тут времяночка, нужен реальный user_id
+    candidate = await _show_candidate(candidates, user.id, candidate_number) #тут времяночка, нужен реальный user_id
     db_interaction.add_person_to_db(candidate)         
     candidate_number += 1
-
     ctx_storage.set("candidate_number", candidate_number)
-   
-    # photos = await _show_photo(candidate.vk_id)
-    #TODO: тут вызвать функцию получения топ-3 фото кандидата
-   
-    #это "времяночка". тут должно быть top3_photots = await _get_top3_photos(candidate.id)
-    top3_photos = ["https://sun7.userapi.com/sun7-13/s/v1/ig1/zpeeTSzA3_sBvdm5kRIzwWhc8_TDP0ZZ0jSuxN9k2jJJRYz5d2cy6AlV5Te9RwvbFS9YYPgG.jpg?size=1620x1620&quality=96&type=album",
-    "https://sun7.userapi.com/sun7-16/s/v1/ig2/kR7reE48qlTNv_FrQevoIB8mL_05b6tNogjosGPm_1krpP1BbY9fLKnGItpIEimy04wG9Ayf-uvIhr7dDSD_vp_P.jpg?size=863x1080&quality=96&type=album",
-    "https://sun9-east.userapi.com/sun9-44/s/v1/ig1/-PFsHNz6vqWLcAyCIMpDxeOKybmfWbSgOjETWblUFFUV27TkLBWmnE19Ctem0jhRVy6NhiSZ.jpg?size=960x1280&quality=96&type=album"]
-
-    attachment = await _get_attachment(top3_photos)
-    
+    photos = await _show_photo(candidate.vk_id)
+    top3_photo_url = await _get_top3_photo_url(photos)
+    attachment = await _get_attachment(top3_photo_url)
     await message.answer(f"По твоим параметрам нашлось {len(candidates.items)} человек.\n Вот {candidate_number}-ый:\n{candidate.first_name} {candidate.last_name}\n Ссылка на профиль: {candidate.vk_link}",
         attachment=attachment,
+        keyboard=keyboard)
+
+@bot.on.message(payload={"command": "/favourite_add"})
+async def exit_handler(message: Message):
+    keyboard = (
+        Keyboard(one_time=True, inline=False)
+        .add(Text("Покажи", {"command": "/show_candidate"}),
+         color=KeyboardButtonColor.SECONDARY)
+        .add(Text("Выход", {"command": "/exit"}),
+         color=KeyboardButtonColor.NEGATIVE)
+    ).get_json()
+    db_interaction.change_is_favourite(candidate.vk_id)
+    await message.answer("Добавил в избранные",
         keyboard=keyboard)
 
 
 @bot.on.message(payload={"command": "/exit"})
 async def exit_handler(message: Message):
+    db_interaction.close_session()
     await message.answer("Жаль, что ты уходишь. Приходи ещё. "\
         "Чтобы начать снова напиши /start",
         keyboard=EMPTY_KEYBOARD)
