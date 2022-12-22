@@ -1,3 +1,4 @@
+import io
 import requests
 from os import remove
 from vkbottle import API, Keyboard, EMPTY_KEYBOARD, Text, KeyboardButtonColor, PhotoMessageUploader, CtxStorage
@@ -16,10 +17,6 @@ user_api = API(USER_TOKEN)
 bot = Bot(api=api)
 ctx_storage = CtxStorage()
 ctx_storage.set("candidate_number", 0)
-ctx_storage.set("user_id", None)
-ctx_storage.set("candidates", None)
-ctx_storage.set("current_candidate", None)
-
 
 async def _candidates_search(age: int, sex_id: int, city_id: str) -> List:
     sex_id = 1 if sex_id == 2 else 2
@@ -35,7 +32,7 @@ async def _show_candidate(candidates: List, user_id: int, candidate_number: int,
         last_name=candidates.items[candidate_number].last_name,
         vk_link=f"https://vk.com/id{candidates.items[candidate_number].id}",
         is_favourite=is_favourite,
-        user_id=user_id) # TODO: тут времяночка
+        user_id=user_id)
     return candidate
 
 
@@ -47,29 +44,9 @@ async def _show_photo(candidate_id: int):
     return photos.items
 
 
-def find_all_by_key(iterable, key, value):
-    return [(index, dict_) for index, dict_ in enumerate(iterable)
-            if key in dict_ and dict_[key] == value]
-
-async def _get_attachment(top3_photos_list: List[str]) -> List:
-    attachment = []
-    photo_uploader = PhotoMessageUploader(bot.api)
-    for index, photo_link in enumerate(top3_photos_list):
-        file_name = f"img{index}.jpg"
-        r = requests.get(photo_link)
-        with open(file_name, 'wb') as download_file:
-            for chunk in r.iter_content(chunk_size=128):
-                download_file.write(chunk)
-        upload_photo = await photo_uploader.upload(file_name)
-        attachment.append(upload_photo)
-        remove(file_name)
-    return attachment
-
-
-async def _get_top3_photo_url(photos: List) -> List[str]:
+async def _get_top3_photo(photos: List) -> List[str]:
         top3_photo = sorted(photos, key=lambda photo: photo.likes.count)[-1:-4:-1]
-        photo_sizes = [photo.sizes for photo in top3_photo]
-        return [obj.url for element in photo_sizes for obj in element if obj.type == obj.type.X]
+        return [f"photo{photo.owner_id}_{photo.id}" for photo in top3_photo]
 
 
 @bot.on.message(payload={"command": "start"})
@@ -107,7 +84,11 @@ async def get_user_info_handler(message: Message):
     db_interaction.add_person_to_db(user)
     ctx_storage.set("user", user)
 
-    # TODO: может быть , тут найти и локально сохранить candidates
+    # TODO: может быть , тут найти и глобально сохранить candidates
+    candidates = await _candidates_search(age=user.age,
+                                            sex_id=user.sex_id,
+                                            city_id=user.city_id)
+    ctx_storage.set("candidates", candidates)
 
     await message.answer("Начинаю поиск...",
                         keyboard=keyboard)
@@ -120,37 +101,27 @@ async def show_candidate_handler(message: Message):
         .add(Text("Покажи", {"command": "/show_candidate"}),
          color=KeyboardButtonColor.POSITIVE)
         .add(Text("Добавить в избранные", {"command": "/favourite_add"}),
-         color=KeyboardButtonColor.SECONDARY)
-        .add(Text("Список избранных", {"command": "/favourite_list"}),
          color=KeyboardButtonColor.PRIMARY)
+        .add(Text("Список избранных", {"command": "/favourite_list"}),
+         color=KeyboardButtonColor.SECONDARY)
         .add(Text("Выход", {"command": "/exit"}),
          color=KeyboardButtonColor.NEGATIVE)
     ).get_json()
 
-    #TODO: (?) тут вызвать функцию получния из бд данных юзера, которая возвращает объект user класса User
-    #это времяночка:
-    # user = ctx_storage.get("user")
     user = db_interaction.get_from_db(message.from_id, User)
-    print(type(user))
-
+    candidates = ctx_storage.get("candidates")
     candidate_number = ctx_storage.get("candidate_number")
-    if ctx_storage.get("candidates") is None:
-        candidates = await _candidates_search(age=user.age,
-                                             sex_id=user.sex_id,
-                                             city_id=user.city_id)
-        ctx_storage.set("candidates", candidates)
-    else:
-        candidates = ctx_storage.get("candidates")
+
     if candidate_number >= len(candidates.items):
         await message.answer("Просмотрены все кандидаты на данный момент")
 
-    candidate = await _show_candidate(candidates, user.id, candidate_number) #тут времяночка, нужен реальный user_id
+    candidate = await _show_candidate(candidates, user.id, candidate_number)
+    ctx_storage.set("candidate", candidate)
     db_interaction.add_person_to_db(candidate)         
     candidate_number += 1
     ctx_storage.set("candidate_number", candidate_number)
     photos = await _show_photo(candidate.vk_id)
-    top3_photo_url = await _get_top3_photo_url(photos)
-    attachment = await _get_attachment(top3_photo_url)
+    attachment = await _get_top3_photo(photos)
     await message.answer(f"По твоим параметрам нашлось {len(candidates.items)} человек.\n Вот {candidate_number}-ый:\n{candidate.first_name} {candidate.last_name}\n Ссылка на профиль: {candidate.vk_link}",
         attachment=attachment,
         keyboard=keyboard)
@@ -159,13 +130,28 @@ async def show_candidate_handler(message: Message):
 async def exit_handler(message: Message):
     keyboard = (
         Keyboard(one_time=True, inline=False)
-        .add(Text("Покажи", {"command": "/show_candidate"}),
-         color=KeyboardButtonColor.SECONDARY)
+        .add(Text("Покажи ещё", {"command": "/show_candidate"}),
+         color=KeyboardButtonColor.POSITIVE)
         .add(Text("Выход", {"command": "/exit"}),
          color=KeyboardButtonColor.NEGATIVE)
     ).get_json()
+    candidate = ctx_storage.get("candidate")
     db_interaction.change_is_favourite(candidate.vk_id)
-    await message.answer("Добавил в избранные",
+    await message.answer(f"Добавил {candidate.first_name} {candidate.last_name} в избранные",
+        keyboard=keyboard)
+
+
+@bot.on.message(payload={"command": "/favourite_list"})
+async def exit_handler(message: Message):
+    keyboard = (
+        Keyboard(one_time=True, inline=False)
+        .add(Text("Покажи ещё", {"command": "/show_candidate"}),
+         color=KeyboardButtonColor.POSITIVE)
+        .add(Text("Выход", {"command": "/exit"}),
+         color=KeyboardButtonColor.NEGATIVE)
+    ).get_json()
+    candidates = db_interaction.show_favourite_list()
+    await message.answer(f"Вот список избранных:\n{candidates}",
         keyboard=keyboard)
 
 
