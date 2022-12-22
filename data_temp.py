@@ -40,39 +40,39 @@ candidate3 = Candidate(
 
 photo1_c1 = Photo(
     vk_link = 'photo1_c1',
-    candidate_id = 1
+    candidate_vk_id = 2222222
 )
 photo2_c1 = Photo(
     vk_link = 'photo2_c1',
-    candidate_id = 1
+    candidate_vk_id = 2222222
 )
 photo3_c1 = Photo(
     vk_link = 'photo3_c1',
-    candidate_id = 1
+    candidate_vk_id = 2222222
 )
 photo1_c2 = Photo(
     vk_link = 'photo1_c2',
-    candidate_id = 2
+    candidate_vk_id = 3333333
 )
 photo2_c2 = Photo(
     vk_link = 'photo2_c2',
-    candidate_id = 2
+    candidate_vk_id = 3333333
 )
 photo3_c2 = Photo(
     vk_link = 'photo3_c2',
-    candidate_id = 2
+    candidate_vk_id = 3333333
 )
 photo1_c3 = Photo(
     vk_link = 'photo1_c3',
-    candidate_id = 3
+    candidate_vk_id = 4444444
 )
 photo2_c3 = Photo(
     vk_link = 'photo2_c3',
-    candidate_id = 3
+    candidate_vk_id = 4444444
 )
 photo3_c3 = Photo(
     vk_link = 'photo3_c3',
-    candidate_id = 3
+    candidate_vk_id = 4444444
 )
 
 candidates = [candidate1, candidate2, candidate3]

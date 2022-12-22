@@ -49,10 +49,10 @@ class Photo(Base):
 
     id = sq.Column(sq.Integer, primary_key=True)
     vk_link = sq.Column(sq.String, unique=True)
-    candidate_id = sq.Column(sq.Integer, sq.ForeignKey("candidate.id"), nullable=False)
+    candidate_vk_id = sq.Column(sq.Integer, sq.ForeignKey("candidate.vk_id"), nullable=False)
 
     candidate = relationship('Candidate', backref='photos')
 
     def __str__(self):
         return [self.id, self.vk_link, 
-                self.candidate_id]
+                self.candidate_vk_id]

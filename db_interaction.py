@@ -55,7 +55,7 @@ def show_favourite_list():
         filter(Candidate.is_favourite == True):
         photo_list = []
         for p in session.query(Photo).join(Candidate.photos).\
-            filter(Photo.candidate_id == c.id):
+            filter(Photo.candidate_vk_id == c.vk_id):
             photo_list.append(p)
         fav_list.append([c, photo_list])
     return fav_list
