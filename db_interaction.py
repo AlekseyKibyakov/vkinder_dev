@@ -35,7 +35,6 @@ def add_person_to_db(person):
         return
     else:
         session.add(person)
-        session.commit()
         
 
 def add_photos_to_db(photo: Photo):
@@ -45,7 +44,6 @@ def add_photos_to_db(photo: Photo):
         if _check_is_in_db(p):
             return
     session.add(p)
-    session.commit()
 
 def show_favourite_list():
     '''Receiving list of favourite candidates 
@@ -72,6 +70,9 @@ def change_is_favourite(vk_id:int):
         candidate.update({Candidate.is_favourite: True})
     else:
         candidate.update({Candidate.is_favourite: False})
+    session.commit()
+
+def commit_session():
     session.commit()
 
 def close_session():
