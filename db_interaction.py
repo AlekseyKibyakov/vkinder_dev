@@ -66,7 +66,13 @@ def get_from_db(vk_id:int, model):
     return session.query(model).filter(model.vk_id == vk_id).first()
 
 def change_is_favourite(vk_id:int):
-    session.query(Candidate).filter(Candidate.vk_id == vk_id).update({Candidate.is_favourite: True})
+    '''Add/Del candidate to/from favourites'''
+    candidate = session.query(Candidate).filter(Candidate.vk_id == vk_id)
+    if candidate.first().is_favourite == False:
+        candidate.update({Candidate.is_favourite: True})
+    else:
+        candidate.update({Candidate.is_favourite: False})
+    session.commit()
 
 def close_session():
     session.close()
