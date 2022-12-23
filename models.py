@@ -35,7 +35,7 @@ class Candidate(Base):
     vk_link = sq.Column(sq.VARCHAR(200))
     is_favourite = sq.Column(sq.Boolean)
 
-    user_id = sq.Column(sq.Integer, sq.ForeignKey("user.id"), nullable=False)
+    user_vk_id = sq.Column(sq.Integer, sq.ForeignKey("user.vk_id"), nullable=False)
 
     user = relationship('User', backref='candidates')
 

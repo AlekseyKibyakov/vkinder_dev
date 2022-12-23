@@ -1,3 +1,4 @@
+from typing import List
 import sqlalchemy as sq
 from models import create_tables, User, Candidate, Photo
 from sqlalchemy.orm import sessionmaker
@@ -40,10 +41,9 @@ def add_person_to_db(person):
 def add_photos_to_db(photo: Photo):
     '''Add photos to database. 
     Can be called after adding each candidate'''
-    for p in photo:
-        if _check_is_in_db(p):
-            return
-    session.add(p)
+    if _check_is_in_db(photo):
+        return
+    session.add(photo)
 
 def show_favourite_list():
     '''Receiving list of favourite candidates 
@@ -63,6 +63,11 @@ def get_from_db(vk_id:int, model):
     model is User or Candidate'''
     return session.query(model).filter(model.vk_id == vk_id).first()
 
+def get_from_db_with_id(id:int, model):
+    '''Get object from database. 
+    model is User or Candidate'''
+    return session.query(model).filter(model.id == id).first()
+
 def change_is_favourite(vk_id:int):
     '''Add/Del candidate to/from favourites'''
     candidate = session.query(Candidate).filter(Candidate.vk_id == vk_id)
@@ -71,6 +76,27 @@ def change_is_favourite(vk_id:int):
     else:
         candidate.update({Candidate.is_favourite: False})
     session.commit()
+
+def show_candidate_list():
+    '''Receiving list of favourite candidates 
+    in format [candidate, [candidate_photos]]'''
+    fav_list = []
+    for c in session.query(Candidate).join(Photo.candidate):
+        photo_list = []
+        for p in session.query(Photo).join(Candidate.photos).\
+            filter(Photo.candidate_vk_id == c.vk_id):
+            photo_list.append(p)
+        fav_list.append([c, photo_list])
+    return fav_list
+
+
+def get_candidate_with_photo(id:int) -> dict:
+    candidate = session.query(Candidate).filter(model.id == id).first()
+    photo_list = []
+    for photo in session.query(Photo).join(Candidate.photos).\
+        filter(Photo.candidate_vk_id == candidate.vk_id):
+            photo_list.append(photo)
+    return {"candidate": candidate, "photos": photo_list}
 
 def commit_session():
     session.commit()

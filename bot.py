@@ -1,6 +1,3 @@
-import io
-import requests
-from os import remove
 from vkbottle import API, Keyboard, EMPTY_KEYBOARD, Text, KeyboardButtonColor, PhotoMessageUploader, CtxStorage
 from vkbottle.bot import Message, Bot
 from loguru import logger
@@ -23,6 +20,8 @@ async def _candidates_search(age: int, sex_id: int, city_id: str) -> List:
     candidates = await user_api.users.search(age_from=age - 5,age_to=age + 5,
                                              sex=sex_id, city=city_id,
                                              count=1000)
+
+
     return candidates
 
 
@@ -33,6 +32,9 @@ async def _show_candidate(candidates: List, user_id: int, candidate_number: int,
         vk_link=f"https://vk.com/id{candidates.items[candidate_number].id}",
         is_favourite=is_favourite,
         user_id=user_id)
+
+    print('ТУТ ПРИНТ', candidates.items[candidate_number].is_closed, candidates.items[candidate_number].can_access_closed)
+
     return candidate
 
 
@@ -88,6 +90,7 @@ async def get_user_info_handler(message: Message):
     candidates = await _candidates_search(age=user.age,
                                             sex_id=user.sex_id,
                                             city_id=user.city_id)
+
     ctx_storage.set("candidates", candidates)
 
     await message.answer("Начинаю поиск...",
