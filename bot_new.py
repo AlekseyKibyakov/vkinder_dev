@@ -1,3 +1,4 @@
+from time import sleep
 from typing import List
 from vkbottle import API, Keyboard, EMPTY_KEYBOARD, Text, KeyboardButtonColor, PhotoMessageUploader, CtxStorage
 from vkbottle.bot import Message, Bot
@@ -17,11 +18,12 @@ ctx_storage.set("candidate_number", 0)
 
 async def _candidates_search(age: int, sex_id: int, city_id: str) -> List:
     sex_id = 1 if sex_id == 2 else 2
-    candidates = await user_api.users.search(age_from=age - 5,age_to=age + 5,
+    candidates_raw = await user_api.users.search(age_from=age - 5,age_to=age + 5,
                                              sex=sex_id, city=city_id,
-                                             count=1000, fields=["is_closed"],
-                                             is_closed=False)
-    return candidates.items
+                                             count=1000, fields=["can_access_closed "])
+
+    candidates = filter(lambda candidate: candidate.can_access_closed  == True, candidates_raw.items)
+    return candidates
 
 
 async def _make_candidate(candidate, user_vk_id: int) -> Candidate:
@@ -97,6 +99,7 @@ async def get_user_info_handler(message: Message):
         for photo_data in top3_photo:
             photo = await _make_photo(photo_data, candidate.vk_id)
             db_interaction.add_photos_to_db(photo)
+        sleep(0.2)
     db_interaction.commit_session()
 
     await message.answer("Начинаю поиск...", keyboard=keyboard)

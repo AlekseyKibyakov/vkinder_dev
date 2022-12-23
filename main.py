@@ -1,4 +1,4 @@
-from bot_new import bot
+from bot_new_new import bot
 
 
 def main():

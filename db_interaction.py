@@ -91,7 +91,7 @@ def show_candidate_list():
 
 
 def get_candidate_with_photo(id:int) -> dict:
-    candidate = session.query(Candidate).filter(model.id == id).first()
+    candidate = session.query(Candidate).filter(Candidate.id == id).first()
     photo_list = []
     for photo in session.query(Photo).join(Candidate.photos).\
         filter(Photo.candidate_vk_id == candidate.vk_id):
