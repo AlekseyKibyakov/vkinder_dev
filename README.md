@@ -1,9 +1,7 @@
 # About
 A simple chat bot for finding candidates for romantic dates.
-bot's dialog shema:
-	![bot's dialog shema](https://github.com/AlekseyKibyakov/vkinder_dev/raw/main/dialog_shema.jpg)
-database shema:
-	![database shema](https://github.com/AlekseyKibyakov/vkinder_dev/raw/main/db_shema.jpg)
+![bot's dialog shema](https://github.com/AlekseyKibyakov/vkinder_dev/raw/main/dialog_shema.jpg)
+![database shema](https://github.com/AlekseyKibyakov/vkinder_dev/raw/main/db_shema.jpg)
 # Installation
 ## clone repo go to the directory:
 ```
@@ -40,7 +38,7 @@ python main.py
 ```
 ## write to the bot "/start"
 # Technology stack
-python
-vkbottle
-postgresql
-sqlalchemy
+- python
+- vkbottle
+- postgresql
+- sqlalchemy
