@@ -49,14 +49,14 @@ def add_photos_to_db(photo: Photo):
 
 
 def show_favourite_list() -> list:
-    '''Receiving list of favourite candidates 
+    '''Receiving list of favourite candidates
     in format [candidate, [candidate_photos]]'''
     fav_list = []
     for c_ in session.query(Candidate).join(Photo.candidate).\
-        filter(Candidate.is_favourite == True):
+            filter(Candidate.is_favourite is True):
         photo_list = []
         for p_ in session.query(Photo).join(Candidate.photos).\
-            filter(Photo.candidate_vk_id == c_.vk_id):
+                filter(Photo.candidate_vk_id == c_.vk_id):
             photo_list.append(p_)
         fav_list.append([c_, photo_list])
     return fav_list
