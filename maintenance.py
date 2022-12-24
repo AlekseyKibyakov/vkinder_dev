@@ -1,9 +1,9 @@
 import datetime as dt
+from time import sleep
 from typing import List
-from vkbottle import API
+from vkbottle import API, VKAPIError, PhotoMessageUploader
 from config import USER_TOKEN
 from models import User, Candidate, Photo
-
 
 user_api = API(USER_TOKEN)
 
@@ -26,16 +26,26 @@ async def _make_user(user_data):
                 city_id=user_data[0].city.id)
 
 
-async def _candidate_search(age: int, sex_id: int, city_id: str, offset: int):
+async def _candidate_search(age: int, sex_id: int, city_id: str, offset: int) -> tuple:
     candidate = await user_api.users.search(age_from=age - 5,
-                                            age_to=age + 5,
-                                            sex=_get_opposite_sex(sex_id),
-                                            city=city_id,
-                                            count=1,
-                                            offset=offset,
-                                            fields=["can_access_closed"])
-
-    return candidate.items[0]
+                                                    age_to=age + 5,
+                                                    sex=_get_opposite_sex(sex_id),
+                                                    city=city_id,
+                                                    count=1,
+                                                    offset=offset,
+                                                    fields=["can_access_closed"])
+  
+    while len(list(filter(lambda item: item.can_access_closed, candidate.items))) == 0:
+        sleep(0.4)
+        candidate = await user_api.users.search(age_from=age - 5,
+                                                age_to=age + 5,
+                                                sex=_get_opposite_sex(sex_id),
+                                                city=city_id,
+                                                count=1,
+                                                offset=offset,
+                                                fields=["can_access_closed"])
+        offset += 1
+    return (candidate.items[0], offset)
         
 
 async def _make_candidate(candidate, user_vk_id: int) -> Candidate:
@@ -56,7 +66,7 @@ async def _get_photos(candidate_vk_id: int) -> list:
 
 async def _get_top3_photo(photos: list) -> List[str]:
     top3_photo = sorted(photos, key=lambda photo: photo.likes.count)[-1:-4:-1]
-    return [f"photo{photo.owner_id}_{photo.id}" for photo in top3_photo]
+    return [f"photo{photo.owner_id}_{photo.id}_{photo.access_key}" if photo.access_key != None else f"photo{photo.owner_id}_{photo.id}" for photo in top3_photo]
 
 
 async def _make_photo(vk_link:str, candidate_vk_id: int) -> Photo:

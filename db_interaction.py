@@ -28,6 +28,7 @@ def _check_is_in_db(item):
                 return True
     return False
 
+
 def add_person_to_db(person):
     '''Add person to database 
     (no matter user or candidate)'''
@@ -45,7 +46,7 @@ def add_photos_to_db(photo: Photo):
         return
     session.add(photo)
 
-def show_favourite_list():
+def show_favourite_list() -> list:
     '''Receiving list of favourite candidates 
     in format [candidate, [candidate_photos]]'''
     fav_list = []
@@ -63,10 +64,6 @@ def get_from_db(vk_id:int, model):
     model is User or Candidate'''
     return session.query(model).filter(model.vk_id == vk_id).first()
 
-def get_from_db_with_id(id:int, model):
-    '''Get object from database. 
-    model is User or Candidate'''
-    return session.query(model).filter(model.id == id).first()
 
 def change_is_favourite(vk_id:int):
     '''Add/Del candidate to/from favourites'''
@@ -77,34 +74,10 @@ def change_is_favourite(vk_id:int):
         candidate.update({Candidate.is_favourite: False})
     session.commit()
 
-def show_candidate_list():
-    '''Receiving list of favourite candidates 
-    in format [candidate, [candidate_photos]]'''
-    fav_list = []
-    for c in session.query(Candidate).join(Photo.candidate):
-        photo_list = []
-        for p in session.query(Photo).join(Candidate.photos).\
-            filter(Photo.candidate_vk_id == c.vk_id):
-            photo_list.append(p)
-        fav_list.append([c, photo_list])
-    return fav_list
-
-
-def get_candidate_with_photo(id:int) -> dict:
-    candidate = session.query(Candidate).filter(Candidate.id == id).first()
-    photo_list = []
-    for photo in session.query(Photo).join(Candidate.photos).\
-        filter(Photo.candidate_vk_id == candidate.vk_id):
-            photo_list.append(photo)
-    return {"candidate": candidate, "photos": photo_list}
 
 def commit_session():
     session.commit()
 
+
 def close_session():
     session.close()
-
-        
-
-
-
