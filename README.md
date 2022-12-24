@@ -13,23 +13,24 @@ cd <repo_name>
 python -m venv .venv
 ```
 ## activate virtualenvironment:
+- linux:
 ```
-source .venv/bin/actvate
+source .venv/bin/activate
+```
+- windows
+```
+.venv\Scripts\activate
 ```
 ## install dependencies from requirements.txt
 ```
 pip install -r requirements.txt
 ```
 ## Create database in postgres
-```
-db_name = vkinder_db
-owner = vkinder
-```
 ## change the file settings.py
 ```
 GROUP_TOKEN - VK group token
 USER_TOKEN - VK user token
-DB_LOGIN = {"login": "vkinder", "password": {YOUR_PASSWORD}, "host": "localhost", "port": 5432, "database": "vkinder_db"}
+DB_LOGIN = {"login": "{YOUR_LOGIN}", "password": {YOUR_PASSWORD}, "host": "localhost", "port": 5432, "database": {YOUR_DATABASE_NAME}}
 ```
 # Usage
 ## run main.py
