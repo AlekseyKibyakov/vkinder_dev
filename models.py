@@ -1,8 +1,8 @@
 import sqlalchemy as sq
 from sqlalchemy.orm import relationship, declarative_base
 
-
 Base = declarative_base()
+
 
 def create_tables(engine):
     Base.metadata.create_all(engine)
@@ -20,7 +20,7 @@ class User(Base):
     city_id = sq.Column(sq.VARCHAR(25))
 
     def __str__(self):
-        return [self.id, self.vk_id, 
+        return [self.id, self.vk_id,
                 self.first_name, self.last_name,
                 self.age, self.sex_id, self.city_id]
 
@@ -34,13 +34,16 @@ class Candidate(Base):
     last_name = sq.Column(sq.VARCHAR(50))
     vk_link = sq.Column(sq.VARCHAR(200))
     is_favourite = sq.Column(sq.Boolean)
-
-    user_vk_id = sq.Column(sq.Integer, sq.ForeignKey("user.vk_id"), nullable=False)
+    user_vk_id = sq.Column(
+        sq.Integer,
+        sq.ForeignKey("user.vk_id"),
+        nullable=False
+        )
 
     user = relationship('User', backref='candidates')
 
     def __str__(self):
-        return [self.id, self.vk_id, self.first_name, 
+        return [self.id, self.vk_id, self.first_name,
                 self.last_name]
 
 
@@ -49,10 +52,14 @@ class Photo(Base):
 
     id = sq.Column(sq.Integer, primary_key=True)
     vk_link = sq.Column(sq.String, unique=True)
-    candidate_vk_id = sq.Column(sq.Integer, sq.ForeignKey("candidate.vk_id"), nullable=False)
+    candidate_vk_id = sq.Column(
+        sq.Integer,
+        sq.ForeignKey("candidate.vk_id"),
+        nullable=False
+        )
 
     candidate = relationship('Candidate', backref='photos')
 
     def __str__(self):
-        return [self.id, self.vk_link, 
+        return [self.id, self.vk_link,
                 self.candidate_vk_id]
