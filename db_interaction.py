@@ -1,7 +1,8 @@
+''' The script with database interaction logic '''
 import sqlalchemy as sq
-from models import create_tables, User, Candidate, Photo
 from sqlalchemy.orm import sessionmaker
 
+from models import create_tables, User, Candidate, Photo
 from config import DB_LOGIN
 
 
@@ -37,8 +38,7 @@ def add_person_to_db(person):
     if _check_is_in_db(person):
         session.close()
         return
-    else:
-        session.add(person)
+    session.add(person)
 
 
 def add_photos_to_db(photo: Photo):
@@ -49,16 +49,16 @@ def add_photos_to_db(photo: Photo):
 
 
 def show_favourite_list() -> list:
-    '''Receiving list of favourite candidates
+    '''Receiving list of favourite candidates 
     in format [candidate, [candidate_photos]]'''
     fav_list = []
-    for c in session.query(Candidate).join(Photo.candidate)\
-            .filter(Candidate.is_favourite is True):
+    for c_ in session.query(Candidate).join(Photo.candidate).\
+        filter(Candidate.is_favourite == True):
         photo_list = []
-        for p in session.query(Photo).join(Candidate.photos)\
-                .filter(Photo.candidate_vk_id == c.vk_id):
-            photo_list.append(p)
-        fav_list.append([c, photo_list])
+        for p_ in session.query(Photo).join(Candidate.photos).\
+            filter(Photo.candidate_vk_id == c_.vk_id):
+            photo_list.append(p_)
+        fav_list.append([c_, photo_list])
     return fav_list
 
 

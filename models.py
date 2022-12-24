@@ -1,3 +1,4 @@
+''' The script with models for a database '''
 import sqlalchemy as sq
 from sqlalchemy.orm import relationship, declarative_base
 
