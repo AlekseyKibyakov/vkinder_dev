@@ -29,7 +29,7 @@ async def start_handler(message: Message):
         .add(Text("Нет", {"command": "/exit"}),
              color=KeyboardButtonColor.NEGATIVE)
     ).get_json()
-    await message.answer("Ищешь пару?", keyboard=keyboard)
+    await message.answer("Привет. Ищешь пару?", keyboard=keyboard)
 
 
 @bot.on.message(payload={"command": "/get_user_info"})
