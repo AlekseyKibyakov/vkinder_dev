@@ -35,45 +35,24 @@ async def _make_user(user_data) -> User:
                 city_id=user_data[0].city.id)
 
 
-async def _candidate_search(age: int, sex_id: int,
-                            city_id: str, offset: int) -> tuple:
+async def _candidate_search(user, offset) -> tuple:
     ''' The function takes the data for the candidate search and the number
      for the offset in the search, and returns a tuple of candidate data
      and the offset number '''
     try:
-        candidate = await user_api.users.search(age_from=age - 5,
-                                                age_to=age + 5,
-                                                sex=_get_opposite_sex(sex_id),
-                                                city=city_id,
+        candidate = await user_api.users.search(age_from=user.age - 5,
+                                                age_to=user.age + 5,
+                                                sex=_get_opposite_sex(user.sex_id),
+                                                city=user.city_id,
                                                 count=1,
                                                 offset=offset,
                                                 fields=["can_access_closed"])
-
-        while len(list(filter(
-                lambda item: item.can_access_closed,
-                candidate.items))) == 0:
-            sleep(0.4)
-            candidate = await user_api.users.search(
-                age_from=age - 5,
-                age_to=age + 5,
-                sex=_get_opposite_sex(sex_id),
-                city=city_id,
-                count=1,
-                offset=offset,
-                fields=["can_access_closed"])
-            offset += 1
 
     except IndexError:
         offset = 0
-        candidate = await user_api.users.search(age_from=age - 5,
-                                                age_to=age + 5,
-                                                sex=_get_opposite_sex(sex_id),
-                                                city=city_id,
-                                                count=1,
-                                                offset=offset,
-                                                fields=["can_access_closed"])
+        candidate.items[0], offset = await _candidate_search(user)
 
-    return (candidate.items[0], offset)
+    return (candidate.items[0], offset + 1)
 
 
 async def _make_candidate(candidate, user_vk_id: int) -> Candidate:
