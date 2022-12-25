@@ -1,7 +1,6 @@
 '''The script with the inside logic of a bot
 to find candidates for romantic dates. '''
 import datetime as dt
-from time import sleep
 from typing import List
 from vkbottle import API
 from config import USER_TOKEN
@@ -40,12 +39,12 @@ async def _candidate_search(user, offset) -> tuple:
      for the offset in the search, and returns a tuple of candidate data
      and the offset number '''
     candidate = await user_api.users.search(age_from=user.age - 5,
-                                                age_to=user.age + 5,
-                                                sex=_get_opposite_sex(user.sex_id),
-                                                city=user.city_id,
-                                                count=1,
-                                                offset=offset,
-                                                fields=["can_access_closed"])
+                                            age_to=user.age + 5,
+                                            sex=_get_opposite_sex(user.sex_id),
+                                            city=user.city_id,
+                                            count=1,
+                                            offset=offset,
+                                            fields=["can_access_closed"])
 
     return (candidate.items[0], offset + 1)
 

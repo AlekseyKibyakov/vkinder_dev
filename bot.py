@@ -71,9 +71,9 @@ async def show_candidate_handler(message: Message):
 
     offset = ctx_storage.get(f"offset_{message.from_id}")
     user = db_interaction.get_from_db(vk_id=message.from_id, model=User)
-    
+
     candidate_from_vk, offset = await _candidate_search(user, offset)
-    
+
     while not candidate_from_vk.can_access_closed:
         try:
             candidate_from_vk, offset = await _candidate_search(user, offset)
