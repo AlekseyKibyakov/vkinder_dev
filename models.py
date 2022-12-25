@@ -10,6 +10,7 @@ def create_tables(engine):
 
 
 class User(Base):
+    '''Model of User, which communicates with bot'''
     __tablename__ = 'user'
 
     id = sq.Column(sq.Integer, primary_key=True)
@@ -27,6 +28,7 @@ class User(Base):
 
 
 class Candidate(Base):
+    '''Model of Candidate, who is found by bot'''
     __tablename__ = 'candidate'
 
     id = sq.Column(sq.Integer, primary_key=True)
@@ -49,6 +51,7 @@ class Candidate(Base):
 
 
 class Photo(Base):
+    '''Model of Candidate`s photo'''
     __tablename__ = 'photo'
 
     id = sq.Column(sq.Integer, primary_key=True)
