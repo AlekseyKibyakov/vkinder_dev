@@ -53,7 +53,7 @@ def show_favourite_list() -> list:
     in format [candidate, [candidate_photos]]'''
     fav_list = []
     for c_ in session.query(Candidate).join(Photo.candidate).\
-        filter(Candidate.is_favourite == True):
+        filter(Candidate.is_favourite):
         photo_list = []
         for p_ in session.query(Photo).join(Candidate.photos).\
             filter(Photo.candidate_vk_id == c_.vk_id):
@@ -70,7 +70,7 @@ def get_from_db(vk_id: int, model):
 def change_is_favourite(vk_id: int):
     '''Add/Delete candidate to/from favourites'''
     candidate = session.query(Candidate).filter(Candidate.vk_id == vk_id)
-    if candidate.first().is_favourite is False:
+    if not candidate.first().is_favourite:
         candidate.update({Candidate.is_favourite: True})
     else:
         candidate.update({Candidate.is_favourite: False})

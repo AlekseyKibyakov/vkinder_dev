@@ -92,7 +92,6 @@ async def show_candidate_handler(message: Message):
         db_interaction.add_photos_to_db(photo)
         db_interaction.commit_session()
 
-    offset += 1
     ctx_storage.set(f"offset_{message.from_id}", offset)
     ctx_storage.set(f"candidate_{message.from_id}", candidate)
     await message.answer(
