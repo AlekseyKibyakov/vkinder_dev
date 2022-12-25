@@ -75,7 +75,11 @@ async def show_candidate_handler(message: Message):
     candidate_from_vk, offset = await _candidate_search(user, offset)
     
     while not candidate_from_vk.can_access_closed:
-        candidate_from_vk, offset = await _candidate_search(user, offset)
+        try:
+            candidate_from_vk, offset = await _candidate_search(user, offset)
+        except IndexError:
+            offset = 0
+            candidate.items[0], offset = await _candidate_search(user)
 
     candidate = await _make_candidate(candidate_from_vk, message.from_id)
     photos = await _get_photos(candidate_from_vk.id)

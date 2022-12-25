@@ -39,18 +39,13 @@ async def _candidate_search(user, offset) -> tuple:
     ''' The function takes the data for the candidate search and the number
      for the offset in the search, and returns a tuple of candidate data
      and the offset number '''
-    try:
-        candidate = await user_api.users.search(age_from=user.age - 5,
+    candidate = await user_api.users.search(age_from=user.age - 5,
                                                 age_to=user.age + 5,
                                                 sex=_get_opposite_sex(user.sex_id),
                                                 city=user.city_id,
                                                 count=1,
                                                 offset=offset,
                                                 fields=["can_access_closed"])
-
-    except IndexError:
-        offset = 0
-        candidate.items[0], offset = await _candidate_search(user)
 
     return (candidate.items[0], offset + 1)
 
